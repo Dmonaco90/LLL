@@ -8,7 +8,7 @@ import tkinter as tk
 import sys
 from tkinter import filedialog
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QPushButton, QTextEdit
-from PyQt5.QtGui import QMovie
+from PyQt5.QtGui import QMovie,QIcon
 from PyQt5.QtCore import Qt, QSize
 import re
 
@@ -20,11 +20,24 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.config = configparser.ConfigParser()
         self.config.read('config.ini')   
-        self.setWindowTitle("Lavorazione Lamiere Lazio - Multitool")
+        self.setWindowTitle("Lavorazione Lamiere Lazio - Automated Multitool")
         self.setGeometry(100, 100, 800, 600)  # x, y, width, height
-
+        self.logo_label = QLabel(self)
+        self.setWindowIcon(QIcon('logoLLL.png')) 
         # Layout principale
         main_layout = QVBoxLayout()
+        
+        # Crea un QLabel per la firma
+        self.firma_label = QLabel("Creato da: Daniele Monaco", self)
+        
+        # Stile opzionale per il QLabel
+        self.firma_label.setStyleSheet("color: gray; font-style: italic; font-size: 10px;")
+        
+        # Posiziona il QLabel in basso a destra (o dove preferisci)
+        self.firma_label.setAlignment(Qt.AlignBottom | Qt.AlignRight)
+
+        # Aggiungi il QLabel al layout principale
+        main_layout.addWidget(self.firma_label)
 
         # Widget GIF
         self.gif_label = QLabel(self)
