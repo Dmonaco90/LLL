@@ -7,9 +7,10 @@ import configparser
 import tkinter as tk
 import sys
 from tkinter import filedialog
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QPushButton, QTextEdit
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QPushButton, QTextEdit,QHBoxLayout
+from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtGui import QMovie,QIcon
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize,QUrl
 import re
 
 
@@ -20,13 +21,13 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.config = configparser.ConfigParser()
         self.config.read('config.ini')   
-        self.setWindowTitle("Lavorazione Lamiere Lazio - Automated Multitool")
+        self.setWindowTitle("Lavorazione Lamiere Lazio")
         self.setGeometry(100, 100, 800, 600)  # x, y, width, height
         self.logo_label = QLabel(self)
         self.setWindowIcon(QIcon('logoLLL.png')) 
         # Layout principale
         main_layout = QVBoxLayout()
-        
+        button_layout = QHBoxLayout()
         # Crea un QLabel per la firma
         self.firma_label = QLabel("Creato da: Daniele Monaco", self)
         
@@ -35,9 +36,12 @@ class MainWindow(QMainWindow):
         
         # Posiziona il QLabel in basso a destra (o dove preferisci)
         self.firma_label.setAlignment(Qt.AlignBottom | Qt.AlignRight)
-
+        self.titolo_label = QLabel("Artificial Metal Automation", self)
+        self.titolo_label.setStyleSheet("background-color: black; color: white; font-size: 40px;")
+        self.titolo_label.setAlignment(Qt.AlignCenter)
+        main_layout.addWidget(self.titolo_label)
         # Aggiungi il QLabel al layout principale
-        main_layout.addWidget(self.firma_label)
+        
 
         # Widget GIF
         self.gif_label = QLabel(self)
@@ -48,7 +52,7 @@ class MainWindow(QMainWindow):
         self.gif_label.setMovie(self.movie)
         self.movie.start()  # Avvia l'animazione della GIF
         main_layout.addWidget(self.gif_label, 40)  # 40% della GUI
-
+        main_layout.addWidget(self.firma_label)
         # Widget Console Log
         self.console_log = QTextEdit(self)
         self.console_log.setReadOnly(True)
@@ -57,21 +61,83 @@ class MainWindow(QMainWindow):
         # Widget Pulsante Punzonatrice
         self.button_widget = QWidget(self)
         button_layout = QVBoxLayout(self.button_widget)
-        self.punzonatrice_button = QPushButton("Punzonatrice", self)
-        self.punzonatrice_button.clicked.connect(self.avvia_script)
-        self.punzonatrice_button.setFixedSize(200, 200)  # Imposta una dimensione fissa per il pulsante
+        # Crea tre pulsanti
+        self.punzonatrice_button = QPushButton("Smart-Punching Machine (Punzonatrice)", self)
+        self.punzonatrice_button.clicked.connect(self.avvia_script_punzonatrice)
         button_layout.addWidget(self.punzonatrice_button)
+
+        self.secondo_pulsante = QPushButton("Funzione 2", self)
+        self.secondo_pulsante.clicked.connect(self.avvia_script_secondo)
+        button_layout.addWidget(self.secondo_pulsante)
+
+        self.terzo_pulsante = QPushButton("Funzione 3", self)
+        self.terzo_pulsante.clicked.connect(self.avvia_script_terzo)
+        button_layout.addWidget(self.terzo_pulsante)
+
+        # Crea un widget per contenere il layout dei pulsanti
+        self.button_widget = QWidget(self)
+        self.button_widget.setLayout(button_layout)
+    
         main_layout.addWidget(self.button_widget, 1)  # 40% della GUI
 
         # Imposta il layout principale
         central_widget = QWidget()
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
+        
+        
+             # Imposta il lettore multimediale
+        self.player = QMediaPlayer()
+        self.player.setMedia(QMediaContent(QUrl.fromLocalFile("music.mp3")))
+        self.player.setVolume(50)  # Imposta il volume iniziale
 
-    def avvia_script(self):
-       
+          # Pulsante per attivare/disattivare l'audio
+        self.toggle_audio_button = QPushButton(self)
+        self.toggle_audio_button.clicked.connect(self.toggle_audio)
+        self.toggle_audio_button.setFixedSize(50, 50)  # Dimensione del pulsante
+        self.toggle_audio_button.setStyleSheet("QPushButton {border-radius: 25;}")
+
+        # Imposta il lettore multimediale
+        self.player = QMediaPlayer()
+        self.player.setMedia(QMediaContent(QUrl.fromLocalFile("music.mp3")))
+        self.player.setVolume(50)  # Imposta il volume iniziale
+
+        # Inizia a suonare la musica all'avvio
+        self.player.play()
+
+        # Aggiorna l'icona del pulsante per riflettere lo stato iniziale del lettore
+        self.update_button_icon()
+
+        # Aggiungi il pulsante al layout principale
+        main_layout.addWidget(self.toggle_audio_button)
+        
+    def toggle_audio(self):
+        if self.player.state() == QMediaPlayer.PlayingState:
+            self.player.pause()  # Metti in pausa se sta suonando
+            
+        else:
+            self.player.play()  # Riproduci se è in pausa
+        self.update_button_icon()
+
+    def update_button_icon(self):
+        icon_path = 'icon_audio_off.png' if self.player.state() == QMediaPlayer.PlayingState else 'icon_audio_on.png'
+        
+        icon = QIcon(icon_path)
+        if icon.isNull():
+            print(f"Errore nel caricamento dell'icona: {icon_path}")
+            return
+
+        self.toggle_audio_button.setIcon(icon)
+        self.toggle_audio_button.setIconSize(QSize(40, 40))
+
+    def avvia_script_punzonatrice(self):
         main(self,self.config)
-
+        
+    def avvia_script_secondo(self):
+        self.console_log.append("Funzione non presente.")
+    def avvia_script_terzo(self):
+        self.console_log.append("Funzione non presente.")
+        
 def valida_excel(df):
     funzione_pattern = re.compile(r'^f[1-9][0-2]?$')  # Corrisponde a F1, F2, ..., F12
     numero_pattern = re.compile(r'^\d+$')  # Corrisponde a stringhe di soli numeri
@@ -134,7 +200,7 @@ def main(self,config):
     except ValueError as e:
         self.console_log.append(f"Validazione fallita: {e}")
         print(f"Validazione fallita: {e}")
-        sys.exit(1)  # Chiude il programma con un codice di errore    
+        return  
     # Avvia l'applicazione
     self.console_log.append("Validazione Excel OK")
     subprocess.Popen(app_executable)
