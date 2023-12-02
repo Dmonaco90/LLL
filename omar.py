@@ -258,7 +258,9 @@ def esegui_procedura(df,delay,config):
                 # Se trova "#", termina il processo corrente e passa alla riga successiva
                 break
             # Gestione dei tasti funzione
-            elif len(cella_str) == 2 and cella_str[0].lower() == 'f' and cella_str[1].isdigit():
+            elif cella_str[0].lower() == 'f' and cella_str[1:].isdigit() and 1 <= int(cella_str[1:]) <= 12:
+            # Questo accetta F1 fino a F12
+
                 pyautogui.press('f' + cella_str[1])
                 
             elif len(cella_str) == 1:
