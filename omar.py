@@ -140,25 +140,21 @@ class MainWindow(QMainWindow):
         
 def valida_excel(df):
     funzione_pattern = re.compile(r'^f[1-9][0-2]?$')  # Corrisponde a F1, F2, ..., F12
-    numero_pattern = re.compile(r'^\d+$')  # Corrisponde a stringhe di soli numeri
+    numero_pattern = re.compile(r'^\d+(\.\d+)?$')  # Modificato per accettare numeri decimali
     comandi_ammessi = ['su', 'giu', 'destra', 'sinistra', 'invio', 'del']
 
     for index, riga in df.iterrows():
         for i, cella in enumerate(riga):
+            cella = converti_virgola_in_punto(cella)
             cella_str = str(cella).strip().lower()
 
-            # Salta la validazione per celle vuote o con un solo carattere
-            if pd.isna(cella) or len(cella_str) == 1:
-                continue
+            # ... (resto del codice di validazione)
 
-            # Esegue la validazione per celle con più di un carattere
-            if numero_pattern.match(cella_str) or cella_str in comandi_ammessi or funzione_pattern.match(cella_str):
-                continue  # Accetta numeri o comandi ammessi
+            if not (numero_pattern.match(cella_str) or cella_str in comandi_ammessi or funzione_pattern.match(cella_str)):
+                errore = f"Errore a riga {index+1}, colonna {i+1}. '{cella_str}' non è un valore valido."
+                return False, errore
 
-            # Se la cella non corrisponde a nessuna delle condizioni valide
-            raise ValueError(f"Errore a riga {index+1}, colonna {i+1}. '{cella_str}' non è un valore valido.")
-
-    return True  # Se tutto è valido
+    return True, "Validazione completata con successo."
 
 
 
@@ -210,6 +206,10 @@ def main(self,config):
     
     esegui_procedura(df,delay,config)
     self.console_log.append("Programma terminato!")
+def converti_virgola_in_punto(valore):
+    if isinstance(valore, str):
+        return valore.replace(',', '.')
+    return valore
 
 def esegui_procedura(df,delay,config):
     env_setting = config['Settings']['env']
