@@ -486,6 +486,15 @@ def main(self,config):
     self.esegui_procedura(df,config)
     self.log_text_edit.append("Programma terminato!")
     
+def converti_virgola_in_punto(valore):
+    if isinstance(valore, str):
+        valore = valore.replace(',', '.')
+        try:
+            valore = round(float(valore), 1)  # Arrotonda a 1 cifra decimale
+        except ValueError:
+            pass  # Gestisci il caso in cui il valore non sia un numero valido
+    return valore
+
 
 
 
