@@ -352,6 +352,8 @@ class MainWindow(QMainWindow):
                     pyautogui.press('left')
                 elif cella_str == "giu":
                     pyautogui.press('down')
+                elif cella_str == "su":
+                    pyautogui.press('up')
                     #print("giu")
                 elif cella_str == "#":
                     if env_setting == "omar":
@@ -401,6 +403,9 @@ def valida_excel(df):
     for index, riga in df.iterrows():
         for i, cella in enumerate(riga):
             # Converti la cella in stringa e normalizza
+            # Salta le celle vuote
+            if pd.isna(cella) or len(cella) == 1:
+                continue
             if ',' in cella  or '.' in cella:
                 try:
                     cella = round(float(cella), 1)  # Arrotonda a 1 cifra decimale
@@ -410,7 +415,7 @@ def valida_excel(df):
             cella_str = str(cella).strip().lower().replace(',', '.')
             
             # Salta le celle vuote
-            if pd.isna(cella) or cella_str == '' or len(cella_str) == 1:
+            if pd.isna(cella) or len(cella_str) == 1:
                 continue
 
             # Interrompi la ricerca nella riga corrente se trovi "#"
